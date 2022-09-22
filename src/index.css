@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,300;1,400;1,500;1,700&display=swap');
+
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #242424;
+}
+
+::-webkit-scrollbar {
+  height: 10px;
+
+
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #9D9D9D;
+  border-radius: 15px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #474747;
+  border-radius: 15px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #727272;
+}

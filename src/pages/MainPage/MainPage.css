@@ -1,0 +1,41 @@
+.main-page {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+}
+
+.main-page .header {
+    display: flex;
+    justify-content: center;
+}
+
+.header h1 {
+    font-family: Josefin Sans, sans-serif;
+    font-weight: 700;
+    font-size: 4rem;
+    color: #FDFFFC;
+}
+
+.main-page .content {
+    display: flex;
+    flex-direction: column;
+    min-width: 1200px;
+    min-height: 700px;
+    border-color: #242424;
+    border-radius: 15px;
+    background-color: #42876B;
+    box-shadow:  inset 0 0 10px #000000;
+
+}
+
+.main-page .footer{
+    display: flex;
+    justify-content: center;
+}
+
+.footer h3{
+    font-family: Josefin Sans, sans-serif;
+    font-weight: 300;
+    color: #d0d0d0;
+}
