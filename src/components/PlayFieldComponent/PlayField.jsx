@@ -1,6 +1,7 @@
 import React from "react";
 import "./PlayField.css";
 import cardBack from "../../assets/card-back.png";
+import Player from "../PlayerComponent/Player.jsx";
 
 const PlayField = () => {
   return (

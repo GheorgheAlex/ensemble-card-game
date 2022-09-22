@@ -9,21 +9,21 @@ const Player = ({ playerId }) => {
         <h1>Player {playerId}</h1>
       </div>
       <div className="right-side">
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
+        {/*<Card />*/}
+        {/*<Card />*/}
+        {/*<Card />*/}
+        {/*<Card />*/}
+        {/*<Card />*/}
+        {/*<Card />*/}
+        {/*<Card />*/}
+        {/*<Card />*/}
+        {/*<Card />*/}
+        {/*<Card />*/}
+        {/*<Card />*/}
+        {/*<Card />*/}
+        {/*<Card />*/}
+        {/*<Card />*/}
+        {/*<Card />*/}
       </div>
     </div>
   );
