@@ -58,6 +58,12 @@
     box-shadow: inset 0 0 10px #000000;
 }
 
+.content .content-right-side h3 {
+    font-family: Josefin Sans, sans-serif;
+    font-weight: 400;
+    font-size: 25px;
+}
+
 .main-page .footer {
     display: flex;
     justify-content: center;

@@ -1,29 +1,26 @@
 import React, { useEffect, useState } from "react";
 import "./Player.css";
 import Card from "../CardComponent/Card.jsx";
-import { getPlayerCardsCall } from "../../utils/api-calls.js";
+import { getCardsFromPileCall } from "../../utils/api-calls.js";
 
-const Player = ({ playerId, playerName, newGame }) => {
+const Player = ({ playerId, playerName, shuffled, refreshGame }) => {
   const [playerCards, setPlayerCards] = useState([]);
-  const getPlayerCards = async () => {
-    await getPlayerCardsCall(playerName)
+
+  const getCardsFromPile = async (pileName) => {
+    await getCardsFromPileCall(pileName)
       .then((res) => {
-        if (playerName === "player1") {
-          setPlayerCards(res.player1.cards);
-        } else if (playerName === "player2") {
-          setPlayerCards(res.player2.cards);
-        }
+        setPlayerCards(res);
       })
       .catch((e) => {
+        console.log(`${playerName} does not have any cards`);
         console.log(e.response.data);
       });
   };
   useEffect(() => {
-    getPlayerCards();
-    console.log(playerCards);
-  }, [newGame]);
+    setPlayerCards([]);
+    getCardsFromPile(playerName);
+  }, [shuffled, refreshGame]);
 
-  console.log(playerCards);
   return (
     <div className="player-container">
       <div className="left-side">
@@ -35,7 +32,7 @@ const Player = ({ playerId, playerName, newGame }) => {
             <Card key={i} cardImage={playerCards[i].image} />
           ))
         ) : (
-          <h3>You don't have any cards</h3>
+          <h3>You don't have any cards.</h3>
         )}
       </div>
     </div>

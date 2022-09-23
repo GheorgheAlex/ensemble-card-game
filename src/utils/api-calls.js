@@ -68,6 +68,33 @@ export const putCardsIntoPlayedCardsPileCall = async (arrayOfCards) => {
   return res;
 };
 
+export const getCardsFromPileCall = async (pileName) => {
+  const res = await axios.get(
+    `https://deckofcardsapi.com/api/deck/${deck_id}/pile/${pileName}/list/`
+  );
+
+  const piles = res.data.piles;
+
+  if (
+    piles &&
+    Object.keys(piles).length === 0 &&
+    Object.getPrototypeOf(piles) === Object.prototype
+  ) {
+    return [];
+  } else {
+    if (pileName === player1Pile && piles.player1) {
+      return res.data.piles.player1.cards;
+    }
+
+    if (pileName === player2Pile && piles.player2) {
+      return res.data.piles.player2.cards;
+    }
+
+    if (pileName === playedCardsPile) return res.data.piles.playedCards.cards;
+  }
+  return [];
+};
+
 export const getPlayerCardsCall = async (playerName) => {
   const res = await axios.get(
     `https://deckofcardsapi.com/api/deck/${deck_id}/pile/${playerName}/list/`
