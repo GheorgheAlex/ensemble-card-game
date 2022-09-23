@@ -8,16 +8,23 @@ import {
   getCardsFromDeckCall,
   putCardsIntoPlayer1PileCall,
   putCardsIntoPlayer2PileCall,
-  putCardsIntoPlayedCardsPileCall,
+  putCardsIntoPlayedCardsPileArrayCall,
+  getCardsFromPileCall,
+  drawFromPlayer1PileCall,
+  drawFromPlayer2PileCall,
+  putCardIntoPlayedCardsPileCall,
 } from "../../utils/api-calls.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
 
 const MainPage = () => {
   const [newGame, setNewGame] = useState(false);
+  const [activePlayer, setActivePlayer] = useState(null);
   const [cardsAreShuffled, setCardsAreShuffled] = useState(true);
   const [isRefreshed, setIsRefreshed] = useState(false);
+  const [playedCard, setPlayedCard] = useState("");
+  const [numberOfErrors, setNumberOfErrors] = useState(0);
+  const [showPickCardButton, setShowPickCardButton] = useState(false);
 
   const getNewDeck = async () => {
     await getNewDeckCall()
@@ -52,8 +59,19 @@ const MainPage = () => {
       });
   };
 
-  const putCardsIntoPlayedCardsPile = async (arrayOfCards) => {
-    await putCardsIntoPlayedCardsPileCall(arrayOfCards)
+  const putCardIntoPlayedCardsPile = async (card) => {
+    await putCardIntoPlayedCardsPileCall(card)
+      .then((res) => {
+        return res;
+      })
+      .catch((e) => {
+        toast.error("Failed adding card to played cards!");
+        console.log(e.response.data);
+      });
+  };
+
+  const putCardsIntoPlayedCardsArrayPile = async (arrayOfCards) => {
+    await putCardsIntoPlayedCardsPileArrayCall(arrayOfCards)
       .then((res) => {
         return res;
       })
@@ -63,60 +81,186 @@ const MainPage = () => {
       });
   };
 
+  const drawFromPlayer1Pile = async () => {
+    await drawFromPlayer1PileCall()
+      .then((res) => {
+        return res;
+      })
+      .catch((e) => {
+        toast.error("Failed to take card from Player 1 pile");
+      });
+  };
+
+  const drawFromPlayer2Pile = async () => {
+    await drawFromPlayer2PileCall()
+      .then((res) => {
+        return res;
+      })
+      .catch((e) => {
+        toast.error("Failed to take card from Player 2 pile");
+      });
+  };
+
   const handleShuffleClick = async (e) => {
     e.preventDefault();
     await shuffleCardDeckCall()
       .then((res) => {
         setNewGame(false);
+        setActivePlayer(null);
+        setPlayedCard("");
+        setNumberOfErrors(0);
+        setShowPickCardButton(false);
         toast.info("Card deck is shuffled!");
       })
       .catch((e) => {
         toast.error("Cannot shuffle deck!");
+        console.log(e);
       });
     setCardsAreShuffled(!cardsAreShuffled);
   };
 
   const handleNewGameClick = async (e) => {
     e.preventDefault();
+    toast.info("Preparing cards...");
 
-    await getCardsFromDeckCall(5)
-      .then((cards) => {
-        putCardsIntoPlayer1Pile(cards);
-      })
-      .catch((e) => {
-        console.log(e.response.data);
-        toast.error("Cannot draw from deck!");
-      });
+    try {
+      await getCardsFromDeckCall(5).then((cards) =>
+        putCardsIntoPlayer1Pile(cards)
+      );
+      await getCardsFromDeckCall(5).then((cards) =>
+        putCardsIntoPlayer2Pile(cards)
+      );
 
-    await getCardsFromDeckCall(5)
-      .then((cards) => {
-        putCardsIntoPlayer2Pile(cards);
-      })
-      .catch((e) => {
-        console.log(e.response.data);
-        toast.error("Cannot draw from deck!");
-      });
+      await getCardsFromDeckCall(1).then((cards) =>
+        putCardsIntoPlayedCardsArrayPile(cards)
+      );
+    } catch (e) {
+      console.log("Error", e);
+      console.log(e.response.data);
+      toast.error("Cannot draw from deck!");
+    }
 
-    await getCardsFromDeckCall(1)
-      .then((cards) => {
-        putCardsIntoPlayedCardsPile(cards);
-        toast.info("A new game is started!");
-      })
-      .catch((e) => {
-        console.log(e.response.data);
-        toast.error("Cannot draw from deck!");
-      });
-
+    toast.success("Cards are distributed. Have fun!");
     setNewGame(true);
     setCardsAreShuffled(false);
     setIsRefreshed(!isRefreshed);
+    await extractPlayedCardData();
+    changeActivePlayer();
+  };
+
+  const changeActivePlayer = () => {
+    const active = activePlayer;
+    setActivePlayer(!activePlayer);
+    if (!active === true) {
+      toast.info("Is Player 1 turn");
+    } else toast.info("Is Player 2 turn");
+  };
+
+  const extractPlayedCardData = async () => {
+    await getCardsFromPileCall("playedCards").then((res) => {
+      setPlayedCard(res[res.length - 1].code);
+    });
+  };
+
+  const handleCardClick = async (i, disabled) => {
+    if (disabled === true || showPickCardButton === true) {
+      console.log("Player is disabled");
+    } else {
+      const splittedUsedCard = Array.from(i);
+      const usedCardValue = splittedUsedCard[0];
+      const usedCardSuit = splittedUsedCard[1];
+
+      const splittedPlayedCard = Array.from(playedCard);
+      const playedCardValue = splittedPlayedCard[0];
+      const playedCardSuit = splittedPlayedCard[1];
+
+      await checkCardRules(
+        i,
+        usedCardValue,
+        usedCardSuit,
+        playedCardValue,
+        playedCardSuit
+      );
+    }
+  };
+
+  const checkCardRules = async (
+    usedCard,
+    usedCardValue,
+    usedCardSuit,
+    playedCardValue,
+    playedCardSuit
+  ) => {
+    if (usedCardValue === playedCardValue || usedCardSuit === playedCardSuit) {
+      if (activePlayer === true) {
+        try {
+          await drawFromPlayer1Pile(usedCard).then(() =>
+            putCardIntoPlayedCardsPile(usedCard)
+          );
+        } catch (e) {
+          console.log("Error", e);
+          console.log(e.response.data);
+        }
+      } else if (activePlayer === false) {
+        try {
+          await drawFromPlayer2Pile(usedCard).then(() =>
+            putCardIntoPlayedCardsPile(usedCard)
+          );
+        } catch (e) {
+          console.log("Error", e);
+          console.log(e.response.data);
+        }
+      }
+      toast.success("Good move");
+      setIsRefreshed(!isRefreshed);
+      changeActivePlayer();
+    } else {
+      toast.error("You cannot do this");
+      setNumberOfErrors(numberOfErrors + 1);
+    }
+
+    if (numberOfErrors === 3) {
+      toast.info("You must now pick a card");
+      setShowPickCardButton(true);
+    }
+  };
+
+  const handlePickCardButton = async (e) => {
+    e.preventDefault();
+    if (activePlayer === true) {
+      try {
+        await getCardsFromDeckCall(1).then((cards) =>
+          putCardsIntoPlayer1Pile(cards)
+        );
+      } catch (e) {
+        console.log("Error", e);
+        console.log(e.response.data);
+      }
+    } else if (activePlayer === false) {
+      try {
+        await getCardsFromDeckCall(1).then((cards) =>
+          putCardsIntoPlayer2Pile(cards)
+        );
+      } catch (e) {
+        console.log("Error", e);
+        console.log(e.response.data);
+      }
+    }
+
+    toast.info("Picked a card.");
+    setShowPickCardButton(false);
+    setNumberOfErrors(0);
+    setIsRefreshed(!isRefreshed);
+    changeActivePlayer();
   };
 
   useEffect(() => {
     const localStorageItem = localStorage.getItem("deckId");
     if (!localStorageItem) {
       getNewDeck();
-      toast.success("You have a new deck to play!");
+      toast.success(
+        "You have a new deck to play! You just need to shuffle it and start a game!"
+      );
     } else {
       shuffleCardDeckCall();
       toast.info(
@@ -129,7 +273,7 @@ const MainPage = () => {
     <div className="main-page">
       <ToastContainer
         position="top-center"
-        autoClose={2500}
+        autoClose={1500}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
@@ -155,6 +299,13 @@ const MainPage = () => {
           >
             New game
           </button>
+          {showPickCardButton ? (
+            <button onClick={(e) => handlePickCardButton(e)}>
+              Pick a card
+            </button>
+          ) : (
+            ""
+          )}
         </div>
         <div className="content-right-side">
           <Player
@@ -163,6 +314,8 @@ const MainPage = () => {
             newGame={newGame}
             shuffled={cardsAreShuffled}
             refreshGame={isRefreshed}
+            onClick={handleCardClick}
+            isDisabled={activePlayer}
           />
           <PlayField
             name="playedCards"
@@ -175,6 +328,8 @@ const MainPage = () => {
             playerName="player1"
             shuffled={cardsAreShuffled}
             refreshGame={isRefreshed}
+            onClick={handleCardClick}
+            isDisabled={!activePlayer}
           />
         </div>
       </div>

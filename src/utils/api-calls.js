@@ -54,7 +54,7 @@ export const putCardsIntoPlayer2PileCall = async (arrayOfCards) => {
   return res;
 };
 
-export const putCardsIntoPlayedCardsPileCall = async (arrayOfCards) => {
+export const putCardsIntoPlayedCardsPileArrayCall = async (arrayOfCards) => {
   const drawedCardsArray = [];
   for (let i = 0; i < arrayOfCards.length; i++) {
     drawedCardsArray.push(arrayOfCards[i].code);
@@ -94,5 +94,22 @@ export const getCardsFromPileCall = async (pileName) => {
       return res.data.piles.playedCards.cards;
     }
   }
-  return [];
+};
+
+export const drawFromPlayer1PileCall = async (card) => {
+  return axios.get(
+    `https://www.deckofcardsapi.com/api/deck/${deck_id}/pile/${player1Pile}/draw/?cards=${card}`
+  );
+};
+
+export const drawFromPlayer2PileCall = async (card) => {
+  return axios.get(
+    `https://www.deckofcardsapi.com/api/deck/${deck_id}/pile/${player2Pile}/draw/?cards=${card}`
+  );
+};
+
+export const putCardIntoPlayedCardsPileCall = async (card) => {
+  return axios.get(
+    `https://www.deckofcardsapi.com/api/deck/${deck_id}/pile/${playedCardsPile}/add/?cards=${card}`
+  );
 };

@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from "react";
 import "./PlayField.css";
 import cardBack from "../../assets/card-back.png";
+import loading from "../../assets/loading.gif";
 import { getCardsFromPileCall } from "../../utils/api-calls.js";
 import Player from "../PlayerComponent/Player.jsx";
 import Card from "../CardComponent/Card.jsx";
 
 const PlayField = ({ name, shuffled, refreshGame, newGame }) => {
   const [discardedCards, setDiscardedCards] = useState([]);
+  const cards = [];
 
   const getCardsFromPile = async (playedCardsPile) => {
     await getCardsFromPileCall(playedCardsPile)
       .then((res) => {
-        setDiscardedCards(res);
+        setDiscardedCards(res[res.length - 1]);
+        cards.push(res[res.length - 1]);
       })
       .catch((e) => {
         console.log("Played cards pile does not have any cards");
@@ -21,7 +24,6 @@ const PlayField = ({ name, shuffled, refreshGame, newGame }) => {
 
   useEffect(() => {
     setDiscardedCards([]);
-
     getCardsFromPile(name);
   }, [newGame, refreshGame]);
 
@@ -31,10 +33,12 @@ const PlayField = ({ name, shuffled, refreshGame, newGame }) => {
         <img src={cardBack} alt="card-back" />
       </div>
       <div className="play-field-pile">
-        {discardedCards.length !== 0 ? (
-          discardedCards.map((discardedCard, i) => (
-            <Card key={i} cardWidth={150} cardImage={discardedCards[i].image} />
-          ))
+        {discardedCards ? (
+          <Card
+            cardWidth={150}
+            alwaysVisible={true}
+            cardImage={discardedCards.image ? discardedCards.image : loading}
+          />
         ) : (
           <h3>Played cards</h3>
         )}
