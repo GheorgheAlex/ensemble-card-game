@@ -16,7 +16,7 @@ import axios from "axios";
 
 const MainPage = () => {
   const [newGame, setNewGame] = useState(false);
-  const [cardsAreShuffled, setCardsAreShuffled] = useState(false);
+  const [cardsAreShuffled, setCardsAreShuffled] = useState(true);
   const [isRefreshed, setIsRefreshed] = useState(false);
 
   const getNewDeck = async () => {
@@ -67,17 +67,18 @@ const MainPage = () => {
     e.preventDefault();
     await shuffleCardDeckCall()
       .then((res) => {
-        setCardsAreShuffled(!cardsAreShuffled);
         setNewGame(false);
         toast.info("Card deck is shuffled!");
       })
       .catch((e) => {
         toast.error("Cannot shuffle deck!");
       });
+    setCardsAreShuffled(!cardsAreShuffled);
   };
 
   const handleNewGameClick = async (e) => {
     e.preventDefault();
+
     await getCardsFromDeckCall(5)
       .then((cards) => {
         putCardsIntoPlayer1Pile(cards);
@@ -107,6 +108,7 @@ const MainPage = () => {
       });
 
     setNewGame(true);
+    setCardsAreShuffled(false);
     setIsRefreshed(!isRefreshed);
   };
 
@@ -162,7 +164,12 @@ const MainPage = () => {
             shuffled={cardsAreShuffled}
             refreshGame={isRefreshed}
           />
-          <PlayField />
+          <PlayField
+            name="playedCards"
+            shuffled={cardsAreShuffled}
+            refreshGame={isRefreshed}
+            newGame={newGame}
+          />
           <Player
             playerId={1}
             playerName="player1"

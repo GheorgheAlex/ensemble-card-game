@@ -90,14 +90,9 @@ export const getCardsFromPileCall = async (pileName) => {
       return res.data.piles.player2.cards;
     }
 
-    if (pileName === playedCardsPile) return res.data.piles.playedCards.cards;
+    if (pileName === playedCardsPile && piles.playedCards) {
+      return res.data.piles.playedCards.cards;
+    }
   }
   return [];
-};
-
-export const getPlayerCardsCall = async (playerName) => {
-  const res = await axios.get(
-    `https://deckofcardsapi.com/api/deck/${deck_id}/pile/${playerName}/list/`
-  );
-  return res.data.piles;
 };

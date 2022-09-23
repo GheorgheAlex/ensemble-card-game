@@ -40,7 +40,6 @@ const Player = ({ playerId, playerName, shuffled, refreshGame }) => {
 };
 Player.defaultProps = {
   playerId: 0,
-  newGame: false,
   playerName: "player0",
 };
 
