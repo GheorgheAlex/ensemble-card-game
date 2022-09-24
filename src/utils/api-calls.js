@@ -120,3 +120,17 @@ export const putCardIntoPlayedCardsPileCall = async (card) => {
     `https://www.deckofcardsapi.com/api/deck/${deck_id}/pile/${playedCardsPile}/add/?cards=${card}`
   );
 };
+
+export const getNumberOfCardsPlayer1Call = async () => {
+  const res = await axios.get(
+    `https://deckofcardsapi.com/api/deck/${deck_id}/pile/${player1Pile}/list/`
+  );
+  return res.data.piles.player1.cards.length;
+};
+
+export const getNumberOfCardsPlayer2Call = async () => {
+  const res = await axios.get(
+    `https://deckofcardsapi.com/api/deck/${deck_id}/pile/${player2Pile}/list/`
+  );
+  return res.data.piles.player2.cards.length;
+};

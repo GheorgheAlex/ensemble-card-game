@@ -14,6 +14,8 @@ import {
   drawFromPlayer2PileCall,
   putCardIntoPlayedCardsPileCall,
   getLastCardFromPlayedCardsPileCall,
+  getNumberOfCardsPlayer1Call,
+  getNumberOfCardsPlayer2Call,
 } from "../../utils/api-calls.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,11 +23,14 @@ import "react-toastify/dist/ReactToastify.css";
 const MainPage = () => {
   const [newGame, setNewGame] = useState(false);
   const [activePlayer, setActivePlayer] = useState(null);
-  const [cardsAreShuffled, setCardsAreShuffled] = useState(true);
-  const [isRefreshed, setIsRefreshed] = useState(false);
+  const [numberOfCardsPlayer1, setNumberOfCardsPlayer1] = useState(0);
+  const [numberOfCardsPlayer2, setNumberOfCardsPlayer2] = useState(0);
   const [playedCard, setPlayedCard] = useState("");
   const [numberOfErrors, setNumberOfErrors] = useState(0);
   const [showPickCardButton, setShowPickCardButton] = useState(false);
+  const [gameIsEnded, setGameIsEnded] = useState(false);
+  const [cardsAreShuffled, setCardsAreShuffled] = useState(true);
+  const [isRefreshed, setIsRefreshed] = useState(false);
 
   const getNewDeck = async () => {
     await getNewDeckCall()
@@ -102,15 +107,28 @@ const MainPage = () => {
       });
   };
 
+  const getNumberOfCardsPlayer1 = async () => {
+    await getNumberOfCardsPlayer1Call().then((res) => {
+      setNumberOfCardsPlayer1(res);
+    });
+  };
+
+  const getNumberOfCardsPlayer2 = async () => {
+    await getNumberOfCardsPlayer2Call().then((res) => {
+      setNumberOfCardsPlayer2(res);
+    });
+  };
+
   const handleShuffleClick = async (e) => {
     e.preventDefault();
     await shuffleCardDeckCall()
       .then((res) => {
         setNewGame(false);
         setActivePlayer(null);
-        // setPlayedCard("");
+        setPlayedCard("");
         setNumberOfErrors(0);
         setShowPickCardButton(false);
+        setGameIsEnded(false);
         toast.info("Card deck is shuffled!");
       })
       .catch((e) => {
@@ -145,7 +163,10 @@ const MainPage = () => {
     setNewGame(true);
     setCardsAreShuffled(false);
     setIsRefreshed(!isRefreshed);
+    setGameIsEnded(false);
     await extractPlayedCardData();
+    getNumberOfCardsPlayer1();
+    getNumberOfCardsPlayer2();
     changeActivePlayer();
   };
 
@@ -153,9 +174,21 @@ const MainPage = () => {
     await extractPlayedCardData();
     const active = activePlayer;
     setActivePlayer(!activePlayer);
+    getNumberOfCardsPlayer1();
+    getNumberOfCardsPlayer2();
     if (!active === true) {
       toast.info("Is Player 1 turn");
     } else toast.info("Is Player 2 turn");
+  };
+
+  const checkIfGameIsEnded = () => {
+    if (numberOfCardsPlayer1 === 0) {
+      toast.success("Player1 WON!");
+      setGameIsEnded(true);
+    } else if (numberOfCardsPlayer2 === 0) {
+      toast.success("Player2 WON!");
+      setGameIsEnded(true);
+    }
   };
 
   const extractPlayedCardData = async () => {
@@ -165,6 +198,7 @@ const MainPage = () => {
   };
 
   const handleCardClick = async (i, disabled) => {
+    checkIfGameIsEnded();
     const splittedUsedCard = Array.from(i);
     const usedCardValue = splittedUsedCard[0];
     const usedCardSuit = splittedUsedCard[1];
@@ -175,8 +209,6 @@ const MainPage = () => {
     if (disabled === true || showPickCardButton === true) {
       console.log("Player is disabled");
     } else {
-      console.log("Card clicked".i);
-
       await checkCardRules(
         i,
         usedCardValue,
@@ -185,6 +217,8 @@ const MainPage = () => {
         playedCardSuit
       );
     }
+
+    // checkIfGameIsEnded();
   };
 
   const checkCardRules = async (
@@ -261,6 +295,9 @@ const MainPage = () => {
       }
     }
   };
+  useEffect(() => {
+    if (newGame === true) checkIfGameIsEnded();
+  }, [isRefreshed, numberOfCardsPlayer1, numberOfCardsPlayer2]);
 
   useEffect(() => {
     const localStorageItem = localStorage.getItem("deckId");
@@ -291,7 +328,13 @@ const MainPage = () => {
         pauseOnHover
       />
       <div className="header">
-        <h1>Card game</h1>
+        {gameIsEnded && numberOfCardsPlayer1 === 0 ? (
+          <h1>Player1 WIN!</h1>
+        ) : gameIsEnded && numberOfCardsPlayer2 === 0 ? (
+          <h1>Player2 WIN!</h1>
+        ) : (
+          <h1>Card game</h1>
+        )}
       </div>
       <div className="content">
         <div className="content-left-side">
@@ -323,7 +366,7 @@ const MainPage = () => {
             shuffled={cardsAreShuffled}
             refreshGame={isRefreshed}
             onClick={handleCardClick}
-            isDisabled={activePlayer}
+            isDisabled={activePlayer || gameIsEnded}
           />
           <PlayField
             name="playedCards"
@@ -337,7 +380,7 @@ const MainPage = () => {
             shuffled={cardsAreShuffled}
             refreshGame={isRefreshed}
             onClick={handleCardClick}
-            isDisabled={!activePlayer}
+            isDisabled={!activePlayer || gameIsEnded}
           />
         </div>
       </div>
