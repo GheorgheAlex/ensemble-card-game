@@ -96,6 +96,13 @@ export const getCardsFromPileCall = async (pileName) => {
   }
 };
 
+export const getLastCardFromPlayedCardsPileCall = async () => {
+  const res = await axios.get(
+    `https://deckofcardsapi.com/api/deck/${deck_id}/pile/${playedCardsPile}/list/`
+  );
+  return res.data.piles.playedCards.cards.at(-1);
+};
+
 export const drawFromPlayer1PileCall = async (card) => {
   return axios.get(
     `https://www.deckofcardsapi.com/api/deck/${deck_id}/pile/${player1Pile}/draw/?cards=${card}`

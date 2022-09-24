@@ -13,6 +13,7 @@ import {
   drawFromPlayer1PileCall,
   drawFromPlayer2PileCall,
   putCardIntoPlayedCardsPileCall,
+  getLastCardFromPlayedCardsPileCall,
 } from "../../utils/api-calls.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -107,7 +108,7 @@ const MainPage = () => {
       .then((res) => {
         setNewGame(false);
         setActivePlayer(null);
-        setPlayedCard("");
+        // setPlayedCard("");
         setNumberOfErrors(0);
         setShowPickCardButton(false);
         toast.info("Card deck is shuffled!");
@@ -148,7 +149,8 @@ const MainPage = () => {
     changeActivePlayer();
   };
 
-  const changeActivePlayer = () => {
+  const changeActivePlayer = async () => {
+    await extractPlayedCardData();
     const active = activePlayer;
     setActivePlayer(!activePlayer);
     if (!active === true) {
@@ -157,22 +159,23 @@ const MainPage = () => {
   };
 
   const extractPlayedCardData = async () => {
-    await getCardsFromPileCall("playedCards").then((res) => {
-      setPlayedCard(res[res.length - 1].code);
+    await getLastCardFromPlayedCardsPileCall().then((res) => {
+      setPlayedCard(res.code);
     });
   };
 
   const handleCardClick = async (i, disabled) => {
+    const splittedUsedCard = Array.from(i);
+    const usedCardValue = splittedUsedCard[0];
+    const usedCardSuit = splittedUsedCard[1];
+
+    const splittedPlayedCard = Array.from(playedCard);
+    const playedCardValue = splittedPlayedCard[0];
+    const playedCardSuit = splittedPlayedCard[1];
     if (disabled === true || showPickCardButton === true) {
       console.log("Player is disabled");
     } else {
-      const splittedUsedCard = Array.from(i);
-      const usedCardValue = splittedUsedCard[0];
-      const usedCardSuit = splittedUsedCard[1];
-
-      const splittedPlayedCard = Array.from(playedCard);
-      const playedCardValue = splittedPlayedCard[0];
-      const playedCardSuit = splittedPlayedCard[1];
+      console.log("Card clicked".i);
 
       await checkCardRules(
         i,
@@ -197,6 +200,7 @@ const MainPage = () => {
           await drawFromPlayer1Pile(usedCard).then(() =>
             putCardIntoPlayedCardsPile(usedCard)
           );
+          changeActivePlayer();
         } catch (e) {
           console.log("Error", e);
           console.log(e.response.data);
@@ -206,6 +210,7 @@ const MainPage = () => {
           await drawFromPlayer2Pile(usedCard).then(() =>
             putCardIntoPlayedCardsPile(usedCard)
           );
+          changeActivePlayer();
         } catch (e) {
           console.log("Error", e);
           console.log(e.response.data);
@@ -213,13 +218,12 @@ const MainPage = () => {
       }
       toast.success("Good move");
       setIsRefreshed(!isRefreshed);
-      changeActivePlayer();
     } else {
       toast.error("You cannot do this");
       setNumberOfErrors(numberOfErrors + 1);
     }
 
-    if (numberOfErrors === 3) {
+    if (numberOfErrors === 1) {
       toast.info("You must now pick a card");
       setShowPickCardButton(true);
     }
@@ -232,6 +236,11 @@ const MainPage = () => {
         await getCardsFromDeckCall(1).then((cards) =>
           putCardsIntoPlayer1Pile(cards)
         );
+        changeActivePlayer();
+        toast.info("Picked a card.");
+        setShowPickCardButton(false);
+        setNumberOfErrors(0);
+        setIsRefreshed(!isRefreshed);
       } catch (e) {
         console.log("Error", e);
         console.log(e.response.data);
@@ -241,17 +250,16 @@ const MainPage = () => {
         await getCardsFromDeckCall(1).then((cards) =>
           putCardsIntoPlayer2Pile(cards)
         );
+        changeActivePlayer();
+        toast.info("Picked a card.");
+        setShowPickCardButton(false);
+        setNumberOfErrors(0);
+        setIsRefreshed(!isRefreshed);
       } catch (e) {
         console.log("Error", e);
         console.log(e.response.data);
       }
     }
-
-    toast.info("Picked a card.");
-    setShowPickCardButton(false);
-    setNumberOfErrors(0);
-    setIsRefreshed(!isRefreshed);
-    changeActivePlayer();
   };
 
   useEffect(() => {
