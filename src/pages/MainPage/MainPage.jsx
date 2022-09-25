@@ -333,6 +333,9 @@ const MainPage = () => {
                 playedCardSuit,
                 true
               );
+              console.log(
+                "Sunt in bucla in care ar trebui sa numar rundele de asteptare"
+              );
             }
             changeActivePlayer();
           } else if (playedCardValue === "A" && usedCardValue !== "A") {
@@ -405,17 +408,30 @@ const MainPage = () => {
               (element) => element === "2"
             );
             if (filteredPlayer2Cards.length === 0) {
-              console.log("Switch turn and pick 2 cards");
-              try {
-                await getCardsFromDeckCall(2).then((cards) =>
-                  putCardsIntoPlayer2Pile(cards)
-                );
-                await drawFromPlayer1Pile(usedCard).then(() =>
-                  putCardIntoPlayedCardsPile(usedCard)
-                );
-                wait ? "" : changeActivePlayer();
-              } catch (e) {
-                console.log(e);
+              if (cardsNumberToDraw === 0) {
+                try {
+                  await getCardsFromDeckCall(2).then((cards) =>
+                    putCardsIntoPlayer2Pile(cards)
+                  );
+                  await drawFromPlayer1Pile(usedCard).then(() =>
+                    putCardIntoPlayedCardsPile(usedCard)
+                  );
+                  wait ? "" : changeActivePlayer();
+                } catch (e) {
+                  console.log(e);
+                }
+              } else {
+                try {
+                  await getCardsFromDeckCall(cardsNumberToDraw).then((cards) =>
+                    putCardsIntoPlayer2Pile(cards)
+                  );
+                  await drawFromPlayer1Pile(usedCard).then(() =>
+                    putCardIntoPlayedCardsPile(usedCard)
+                  );
+                  wait ? "" : changeActivePlayer();
+                } catch (e) {
+                  console.log(e);
+                }
               }
             } else if (filteredPlayer2Cards.length !== 0) {
               console.log("Switch turn and player1 must pick2 cards");
@@ -435,19 +451,32 @@ const MainPage = () => {
               (element) => element === "2"
             );
             if (filteredPlayer1Cards.length === 0) {
-              try {
-                await getCardsFromDeckCall(2).then((cards) =>
-                  putCardsIntoPlayer1Pile(cards)
-                );
-                await drawFromPlayer2Pile(usedCard).then(() =>
-                  putCardIntoPlayedCardsPile(usedCard)
-                );
-                wait ? "" : changeActivePlayer();
-              } catch (e) {
-                console.log(e);
+              if (cardsNumberToDraw === 0) {
+                try {
+                  await getCardsFromDeckCall(2).then((cards) =>
+                    putCardsIntoPlayer1Pile(cards)
+                  );
+                  await drawFromPlayer2Pile(usedCard).then(() =>
+                    putCardIntoPlayedCardsPile(usedCard)
+                  );
+                  wait ? "" : changeActivePlayer();
+                } catch (e) {
+                  console.log(e);
+                }
+              } else {
+                try {
+                  await getCardsFromDeckCall(2).then((cards) =>
+                    putCardsIntoPlayer1Pile(cards)
+                  );
+                  await drawFromPlayer2Pile(usedCard).then(() =>
+                    putCardIntoPlayedCardsPile(usedCard)
+                  );
+                  wait ? "" : changeActivePlayer();
+                } catch (e) {
+                  console.log(e);
+                }
               }
             } else if (filteredPlayer1Cards.length !== 0) {
-              console.log("Switch turn and player1 must pick2 cards");
               setCardsNumberToDraw(cardsNumberToDraw + 2);
               setHaveToDraw(true);
               try {
@@ -462,23 +491,35 @@ const MainPage = () => {
           }
           break;
         case "3":
-          console.log("carte 3 selectata");
           if (activePlayer === true) {
             const filteredPlayer2Cards = player2CardsValues.filter(
-              (element) => element === "2"
+              (element) => element === "3"
             );
             if (filteredPlayer2Cards.length === 0) {
-              console.log("Switch turn and pick 3 cards");
-              try {
-                await getCardsFromDeckCall(3).then((cards) =>
-                  putCardsIntoPlayer2Pile(cards)
-                );
-                await drawFromPlayer1Pile(usedCard).then(() =>
-                  putCardIntoPlayedCardsPile(usedCard)
-                );
-                wait ? "" : changeActivePlayer();
-              } catch (e) {
-                console.log(e);
+              if (cardsNumberToDraw === 0) {
+                try {
+                  await getCardsFromDeckCall(3).then((cards) =>
+                    putCardsIntoPlayer2Pile(cards)
+                  );
+                  await drawFromPlayer1Pile(usedCard).then(() =>
+                    putCardIntoPlayedCardsPile(usedCard)
+                  );
+                  wait ? "" : changeActivePlayer();
+                } catch (e) {
+                  console.log(e);
+                }
+              } else {
+                try {
+                  await getCardsFromDeckCall(3).then((cards) =>
+                    putCardsIntoPlayer2Pile(cards)
+                  );
+                  await drawFromPlayer1Pile(usedCard).then(() =>
+                    putCardIntoPlayedCardsPile(usedCard)
+                  );
+                  wait ? "" : changeActivePlayer();
+                } catch (e) {
+                  console.log(e);
+                }
               }
             } else if (filteredPlayer2Cards.length !== 0) {
               console.log("Switch turn and player1 must pick2 cards");
@@ -755,6 +796,17 @@ const MainPage = () => {
             <button onClick={(e) => handlePickCardButton(e)}>
               Pick a card
             </button>
+          ) : (
+            ""
+          )}
+
+          {haveToDraw ? (
+            <button disabled>{`${cardsNumberToDraw} cards to draw`}</button>
+          ) : (
+            ""
+          )}
+          {haveToWait ? (
+            <button disabled>{`${roundsToWait} rounds to wait`}</button>
           ) : (
             ""
           )}
