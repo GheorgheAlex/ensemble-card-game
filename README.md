@@ -46,7 +46,7 @@ If a 2 is played, the next player in the sequence must pick up 2 cards unless th
 If a 4 or Ace is played, the next player in the sequence must miss a go, unless they have a 4 or an Ace (if Ace was played), in which case they will add this to the original 4 or Ace (if Ace was played) and the next player in sequence misses 2 goes.
 
 When one of the players will finish the cards in hand a notification will appear with the player that won the game and the title will change accordingly.
-
+![Game is won](images/game-is-won.png)
 # 3. Future improvements
 - Drag and drop interface for moving player cards into played cards pile
 - Better performance improvements to make more efficient API calls

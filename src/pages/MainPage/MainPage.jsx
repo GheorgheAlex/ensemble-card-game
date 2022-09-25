@@ -213,6 +213,14 @@ const MainPage = () => {
     changeActivePlayer();
   };
 
+  const updatePlayerStates = async () => {
+    await extractPlayedCardData();
+    await getNumberOfCardsPlayer1();
+    await getNumberOfCardsPlayer2();
+    await getPlayer1CardValues();
+    await getPlayer2CardValues();
+  };
+
   const changeActivePlayer = async () => {
     await extractPlayedCardData();
     await getNumberOfCardsPlayer1();
@@ -232,7 +240,7 @@ const MainPage = () => {
     } else toast.info("Is Player 2 turn");
   };
 
-  const checkIfGameIsEnded = () => {
+  const checkIfGameIsEnded = async () => {
     if (numberOfCardsPlayer1 === 0) {
       toast.success("Player1 WON!");
       setGameIsEnded(true);
@@ -249,7 +257,7 @@ const MainPage = () => {
   };
 
   const handleCardClick = async (i, disabled) => {
-    checkIfGameIsEnded();
+    await checkIfGameIsEnded();
     const splittedUsedCard = Array.from(i);
     const usedCardValue = splittedUsedCard[0];
     const usedCardSuit = splittedUsedCard[1];
@@ -258,7 +266,7 @@ const MainPage = () => {
     const playedCardValue = splittedPlayedCard[0];
     const playedCardSuit = splittedPlayedCard[1];
     if (disabled === true || showPickCardButton === true) {
-      console.log("Player is disabled");
+      toast.info("Pick a card");
     } else {
       if (haveToDraw === false && haveToWait === false) {
         await checkCardRules(
@@ -333,11 +341,8 @@ const MainPage = () => {
                 playedCardSuit,
                 true
               );
-              console.log(
-                "Sunt in bucla in care ar trebui sa numar rundele de asteptare"
-              );
             }
-            changeActivePlayer();
+            await changeActivePlayer();
           } else if (playedCardValue === "A" && usedCardValue !== "A") {
             toast.error("You cannot play that card. You must play an Ace");
           }
@@ -352,8 +357,8 @@ const MainPage = () => {
                 true
               );
             }
-            changeActivePlayer();
-          } else if (playedCardValue === "3" && usedCardValue !== "4") {
+            await changeActivePlayer();
+          } else if (playedCardValue === "4" && usedCardValue !== "4") {
             toast.error("You cannot play that card. You must play a 4");
           }
         } else if (activePlayer === false) {
@@ -368,7 +373,7 @@ const MainPage = () => {
                 true
               );
             }
-            changeActivePlayer();
+            await changeActivePlayer();
           } else if (playedCardValue === "A" && usedCardValue !== "A") {
             toast.error("You cannot play that card. You must play an Ace");
           }
@@ -383,7 +388,7 @@ const MainPage = () => {
                 true
               );
             }
-            changeActivePlayer();
+            await changeActivePlayer();
           } else if (playedCardValue === "4" && usedCardValue !== "4") {
             toast.error("You cannot play that card. You must play a 4");
           }
@@ -416,25 +421,25 @@ const MainPage = () => {
                   await drawFromPlayer1Pile(usedCard).then(() =>
                     putCardIntoPlayedCardsPile(usedCard)
                   );
-                  wait ? "" : changeActivePlayer();
                 } catch (e) {
                   console.log(e);
                 }
+                if (!wait) await changeActivePlayer();
               } else {
                 try {
                   await getCardsFromDeckCall(cardsNumberToDraw).then((cards) =>
                     putCardsIntoPlayer2Pile(cards)
                   );
+                  setCardsNumberToDraw(0);
                   await drawFromPlayer1Pile(usedCard).then(() =>
                     putCardIntoPlayedCardsPile(usedCard)
                   );
-                  wait ? "" : changeActivePlayer();
                 } catch (e) {
                   console.log(e);
                 }
+                if (!wait) await changeActivePlayer();
               }
             } else if (filteredPlayer2Cards.length !== 0) {
-              console.log("Switch turn and player1 must pick2 cards");
               setCardsNumberToDraw(cardsNumberToDraw + 2);
               setHaveToDraw(true);
               try {
@@ -444,7 +449,7 @@ const MainPage = () => {
               } catch (e) {
                 console.log(e);
               }
-              wait ? "" : changeActivePlayer();
+              if (!wait) await changeActivePlayer();
             }
           } else if (activePlayer === false) {
             const filteredPlayer1Cards = player1CardsValues.filter(
@@ -459,19 +464,20 @@ const MainPage = () => {
                   await drawFromPlayer2Pile(usedCard).then(() =>
                     putCardIntoPlayedCardsPile(usedCard)
                   );
-                  wait ? "" : changeActivePlayer();
+                  if (!wait) await changeActivePlayer();
                 } catch (e) {
                   console.log(e);
                 }
               } else {
                 try {
-                  await getCardsFromDeckCall(2).then((cards) =>
+                  await getCardsFromDeckCall(cardsNumberToDraw).then((cards) =>
                     putCardsIntoPlayer1Pile(cards)
                   );
+                  setCardsNumberToDraw(0);
                   await drawFromPlayer2Pile(usedCard).then(() =>
                     putCardIntoPlayedCardsPile(usedCard)
                   );
-                  wait ? "" : changeActivePlayer();
+                  if (!wait) await changeActivePlayer();
                 } catch (e) {
                   console.log(e);
                 }
@@ -486,7 +492,7 @@ const MainPage = () => {
               } catch (e) {
                 console.log(e);
               }
-              wait ? "" : changeActivePlayer();
+              if (!wait) await changeActivePlayer();
             }
           }
           break;
@@ -504,25 +510,25 @@ const MainPage = () => {
                   await drawFromPlayer1Pile(usedCard).then(() =>
                     putCardIntoPlayedCardsPile(usedCard)
                   );
-                  wait ? "" : changeActivePlayer();
+                  if (!wait) await changeActivePlayer();
                 } catch (e) {
                   console.log(e);
                 }
               } else {
                 try {
-                  await getCardsFromDeckCall(3).then((cards) =>
+                  await getCardsFromDeckCall(cardsNumberToDraw).then((cards) =>
                     putCardsIntoPlayer2Pile(cards)
                   );
+                  setCardsNumberToDraw(0);
                   await drawFromPlayer1Pile(usedCard).then(() =>
                     putCardIntoPlayedCardsPile(usedCard)
                   );
-                  wait ? "" : changeActivePlayer();
+                  if (!wait) await changeActivePlayer();
                 } catch (e) {
                   console.log(e);
                 }
               }
             } else if (filteredPlayer2Cards.length !== 0) {
-              console.log("Switch turn and player1 must pick2 cards");
               setCardsNumberToDraw(cardsNumberToDraw + 3);
               setHaveToDraw(true);
               try {
@@ -532,26 +538,41 @@ const MainPage = () => {
               } catch (e) {
                 console.log(e);
               }
-              wait ? "" : changeActivePlayer();
+              if (!wait) await changeActivePlayer();
             }
           } else if (activePlayer === false) {
             const filteredPlayer1Cards = player1CardsValues.filter(
-              (element) => element === "2"
+              (element) => element === "3"
             );
             if (filteredPlayer1Cards.length === 0) {
-              try {
-                await getCardsFromDeckCall(3).then((cards) =>
-                  putCardsIntoPlayer1Pile(cards)
-                );
-                await drawFromPlayer2Pile(usedCard).then(() =>
-                  putCardIntoPlayedCardsPile(usedCard)
-                );
-                wait ? "" : changeActivePlayer();
-              } catch (e) {
-                console.log(e);
+              if (cardsNumberToDraw === 0) {
+                try {
+                  await getCardsFromDeckCall(3).then((cards) =>
+                    putCardsIntoPlayer1Pile(cards)
+                  );
+                  await drawFromPlayer2Pile(usedCard).then(() =>
+                    putCardIntoPlayedCardsPile(usedCard)
+                  );
+                  if (!wait) await changeActivePlayer();
+                } catch (e) {
+                  console.log(e);
+                }
+              } else {
+                try {
+                  await getCardsFromDeckCall(cardsNumberToDraw).then((cards) =>
+                    putCardsIntoPlayer1Pile(cards)
+                  );
+                  setCardsNumberToDraw(0);
+                  await drawFromPlayer2Pile(usedCard).then(() =>
+                    putCardIntoPlayedCardsPile(usedCard)
+                  );
+                  if (!wait) await changeActivePlayer();
+                } catch (e) {
+                  console.log(e);
+                }
               }
             } else if (filteredPlayer1Cards.length !== 0) {
-              setCardsNumberToDraw(cardsNumberToDraw + 2);
+              setCardsNumberToDraw(cardsNumberToDraw + 3);
               setHaveToDraw(true);
               try {
                 await drawFromPlayer2Pile(usedCard).then(() =>
@@ -560,7 +581,7 @@ const MainPage = () => {
               } catch (e) {
                 console.log(e);
               }
-              wait ? "" : changeActivePlayer();
+              if (!wait) await changeActivePlayer();
             }
           }
           break;
@@ -575,6 +596,7 @@ const MainPage = () => {
                   putCardIntoPlayedCardsPile(usedCard)
                 );
                 setIsRefreshed(!isRefreshed);
+                await updatePlayerStates();
               } catch (e) {
                 console.log(e);
               }
@@ -588,7 +610,11 @@ const MainPage = () => {
               } catch (e) {
                 console.log(e);
               }
-              wwait ? "" : changeActivePlayer();
+              if (!wait) {
+                await changeActivePlayer();
+              } else {
+                await updatePlayerStates();
+              }
             }
           } else if (activePlayer === false) {
             const filteredPlayer1Cards = player1CardsValues.filter(
@@ -600,6 +626,7 @@ const MainPage = () => {
                   putCardIntoPlayedCardsPile(usedCard)
                 );
                 setIsRefreshed(!isRefreshed);
+                await updatePlayerStates();
               } catch (e) {
                 console.log(e);
               }
@@ -613,7 +640,11 @@ const MainPage = () => {
               } catch (e) {
                 console.log(e);
               }
-              wait ? "" : changeActivePlayer();
+              if (!wait) {
+                await changeActivePlayer();
+              } else {
+                await updatePlayerStates();
+              }
             }
           }
           break;
@@ -628,6 +659,7 @@ const MainPage = () => {
                   putCardIntoPlayedCardsPile(usedCard)
                 );
                 setIsRefreshed(!isRefreshed);
+                await updatePlayerStates();
               } catch (e) {
                 console.log(e);
               }
@@ -641,7 +673,11 @@ const MainPage = () => {
               } catch (e) {
                 console.log(e);
               }
-              wait ? "" : changeActivePlayer();
+              if (!wait) {
+                await changeActivePlayer();
+              } else {
+                await updatePlayerStates();
+              }
             }
           } else if (activePlayer === false) {
             const filteredPlayer1Cards = player1CardsValues.filter(
@@ -653,6 +689,7 @@ const MainPage = () => {
                   putCardIntoPlayedCardsPile(usedCard)
                 );
                 setIsRefreshed(!isRefreshed);
+                await updatePlayerStates();
               } catch (e) {
                 console.log(e);
               }
@@ -666,7 +703,11 @@ const MainPage = () => {
               } catch (e) {
                 console.log(e);
               }
-              wait ? "" : changeActivePlayer();
+              if (!wait) {
+                await changeActivePlayer();
+              } else {
+                await updatePlayerStates();
+              }
             }
           }
           break;
@@ -676,7 +717,7 @@ const MainPage = () => {
               await drawFromPlayer1Pile(usedCard).then(() =>
                 putCardIntoPlayedCardsPile(usedCard)
               );
-              wait ? "" : changeActivePlayer();
+              if (!wait) await changeActivePlayer();
             } catch (e) {
               console.log("Error", e);
               console.log(e.response.data);
@@ -686,7 +727,7 @@ const MainPage = () => {
               await drawFromPlayer2Pile(usedCard).then(() =>
                 putCardIntoPlayedCardsPile(usedCard)
               );
-              wait ? "" : changeActivePlayer();
+              if (!wait) await changeActivePlayer();
             } catch (e) {
               console.log("Error", e);
               console.log(e.response.data);
@@ -712,7 +753,7 @@ const MainPage = () => {
         await getCardsFromDeckCall(1).then((cards) =>
           putCardsIntoPlayer1Pile(cards)
         );
-        changeActivePlayer();
+        await changeActivePlayer();
         toast.info("Picked a card.");
         setShowPickCardButton(false);
         setNumberOfErrors(0);
@@ -726,7 +767,7 @@ const MainPage = () => {
         await getCardsFromDeckCall(1).then((cards) =>
           putCardsIntoPlayer2Pile(cards)
         );
-        changeActivePlayer();
+        await changeActivePlayer();
         toast.info("Picked a card.");
         setShowPickCardButton(false);
         setNumberOfErrors(0);
@@ -810,12 +851,6 @@ const MainPage = () => {
           ) : (
             ""
           )}
-
-          {/*{haveToDraw ? (*/}
-          {/*  <button>{`Draw ${cardsNumberToDraw} cards`}</button>*/}
-          {/*) : (*/}
-          {/*  ""*/}
-          {/*)}*/}
         </div>
         <div className="content-right-side">
           <Player
