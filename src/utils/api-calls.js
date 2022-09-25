@@ -134,3 +134,9 @@ export const getNumberOfCardsPlayer2Call = async () => {
   );
   return res.data.piles.player2.cards.length;
 };
+
+export const getPlayer1CardsValues = async () => {
+  const res = await axios.get(
+    `https://www.deckofcardsapi.com/api/deck/${deck_id}/pile/${player1Pile}/list/`
+  );
+};

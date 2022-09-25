@@ -49,7 +49,6 @@ const MainPage = () => {
       .then((res) => {
         return res;
       })
-
       .catch((e) => {
         toast.error("Error when adding cards to Player1 deck!");
         console.log(e.response);
@@ -184,7 +183,7 @@ const MainPage = () => {
     await extractPlayedCardData();
     await getNumberOfCardsPlayer1();
     await getNumberOfCardsPlayer2();
-    checkDrawMultipleCards();
+
     setNumberOfErrors(0);
     checkIfGameIsEnded();
     const active = activePlayer;
@@ -211,19 +210,7 @@ const MainPage = () => {
     });
   };
 
-  const checkDrawMultipleCards = () => {
-    const splittedPlayedCard = Array.from(playedCard);
-    const playedCardVal = splittedPlayedCard[0];
-    if (playedCardVal === "2") {
-      // setHaveToDraw(true);
-      // setCardsNumberToDraw(cardsNumberToDraw + 2);
-      console.log("checkedDrawMultiple cards", 2);
-    } else if (playedCardVal === "3") {
-      // setHaveToDraw(true);
-      // setCardsNumberToDraw(cardsNumberToDraw + 3);
-      console.log("checkedDrawMultiple cards", 3);
-    }
-  };
+  const drawMultipleCards = () => {};
 
   const handleMultipleCardDrawButton = (e) => {
     e.preventDefault();
@@ -261,45 +248,56 @@ const MainPage = () => {
     playedCardSuit
   ) => {
     if (usedCardValue === playedCardValue || usedCardSuit === playedCardSuit) {
-      if (activePlayer === true) {
-        if (usedCardValue === 2) {
-          console.log("Player1 card played is 2");
-        } else if (usedCardValue === 3) {
-          console.log("Player1 card played is 3");
-        } else {
-          try {
-            await drawFromPlayer1Pile(usedCard).then(() =>
-              putCardIntoPlayedCardsPile(usedCard)
-            );
-            checkDrawMultipleCards();
-            changeActivePlayer();
-          } catch (e) {
-            console.log("Error", e);
-            console.log(e.response.data);
+      console.log("Ai ales o carte buna");
+      switch (usedCardValue) {
+        case "2":
+          console.log("carte 2 selectata");
+          if (activePlayer === true) {
+            console.log("Player1 a jucat 2");
+          } else if (activePlayer === false) {
+            console.log("Player2 a ales cartea 2");
           }
-        }
-      } else if (activePlayer === false) {
-        try {
-          await drawFromPlayer2Pile(usedCard).then(() =>
-            putCardIntoPlayedCardsPile(usedCard)
-          );
-          checkDrawMultipleCards();
-          changeActivePlayer();
-        } catch (e) {
-          console.log("Error", e);
-          console.log(e.response.data);
-        }
+          break;
+        case "3":
+          console.log("carte 3 selectata");
+          if (activePlayer === true) {
+            console.log("Player1 a jucat 3");
+          } else if (activePlayer === false) {
+            console.log("Player2 a ales cartea 3");
+          }
+          break;
+        case "A" || "4":
+          console.log("A sau 4 selectat");
+          break;
+        default:
+          console.log("default case");
+          if (activePlayer === true) {
+            try {
+              await drawFromPlayer1Pile(usedCard).then(() =>
+                putCardIntoPlayedCardsPile(usedCard)
+              );
+              changeActivePlayer();
+            } catch (e) {
+              console.log("Error", e);
+              console.log(e.response.data);
+            }
+          } else if (activePlayer === false) {
+            try {
+              await drawFromPlayer2Pile(usedCard).then(() =>
+                putCardIntoPlayedCardsPile(usedCard)
+              );
+              changeActivePlayer();
+            } catch (e) {
+              console.log("Error", e);
+              console.log(e.response.data);
+            }
+          }
+          toast.success("Good move");
+          setIsRefreshed(!isRefreshed);
+          break;
       }
-      toast.success("Good move");
-      setIsRefreshed(!isRefreshed);
     } else {
-      toast.error("You cannot do this");
-      setNumberOfErrors(numberOfErrors + 1);
-    }
-
-    if (numberOfErrors === 1) {
-      toast.info("You must now pick a card");
-      setShowPickCardButton(true);
+      console.log("Ai ales o carte proasta");
     }
   };
 
