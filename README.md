@@ -21,15 +21,15 @@ Other commands are:
 
 # 2. Usage
 
-When you start the application from the first time, a new deck will be generated in the API and it's ID will be stored in browser storage for further use. After generating the deck the app will notify you to shuffle the deck before the first game.
+When you start the application from the first time, a new deck will be generated in API and it's deck_id will be stored in browser storage for further use. After generating the deck the app will notify you to shuffle the deck before the first game.
 ![Generating a new deck](images/generating-new-deck.png)
 
 
- If you run the app for the second time and over an ID will be already existing in storage and will be use. If that's the case, your card deck will be automatically shuffled.
+ If you run the app for the second time the app will check if you have a deck_id in browser storage. If that's the case, your card deck will be automatically shuffled.
  ![Already having a deck](images/starting-window.png)
 
 
-After you press NewGame button, 5 cards will be distributted for every player, and a card will pe put on played cards surface. After you started a new game, you need to shuffle the cards before you can begin another game. Pressing the new game button will trigger a notification that tells you you need to reshuffle the deck first.
+After you press NewGame button, 5 cards will be distributed for every player, and a card will pe put on played cards surface. After you started a new game, you need to shuffle the cards before you can begin another game. Pressing the new game button will trigger a notification that tells you need to reshuffle the deck first.
 ![Starting a game](images/started-new-game.png)
 ![Trying to start a new game without shuffling the deck first](images/shuffle-cards-first.png)
 
@@ -49,8 +49,6 @@ When one of the players will finish the cards in hand a notification will appear
 ![Game is won](images/game-is-won.png)
 # 3. Future improvements
 - Drag and drop interface for moving player cards into played cards pile
-- Better performance improvements to make more efficient API calls
+- More efficient API calls to improve app performance
 - An implementation of global states with react redux may improve the app performance by reducing some of the state updates
-- Make the card deck clickable instead of showing the "Pick a card" button 
-
-# 4. App images
+- Make the card deck clickable instead of showing the "Pick a card" button
