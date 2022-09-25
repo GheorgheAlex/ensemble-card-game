@@ -23,11 +23,13 @@ import "react-toastify/dist/ReactToastify.css";
 const MainPage = () => {
   const [newGame, setNewGame] = useState(false);
   const [activePlayer, setActivePlayer] = useState(null);
-  const [numberOfCardsPlayer1, setNumberOfCardsPlayer1] = useState(0);
-  const [numberOfCardsPlayer2, setNumberOfCardsPlayer2] = useState(0);
+  const [numberOfCardsPlayer1, setNumberOfCardsPlayer1] = useState(-1);
+  const [numberOfCardsPlayer2, setNumberOfCardsPlayer2] = useState(-1);
   const [playedCard, setPlayedCard] = useState("");
   const [numberOfErrors, setNumberOfErrors] = useState(0);
   const [showPickCardButton, setShowPickCardButton] = useState(false);
+  const [haveToDraw, setHaveToDraw] = useState(false);
+  const [cardsNumberToDraw, setCardsNumberToDraw] = useState(0);
   const [gameIsEnded, setGameIsEnded] = useState(false);
   const [cardsAreShuffled, setCardsAreShuffled] = useState(true);
   const [isRefreshed, setIsRefreshed] = useState(false);
@@ -129,6 +131,10 @@ const MainPage = () => {
         setNumberOfErrors(0);
         setShowPickCardButton(false);
         setGameIsEnded(false);
+        setHaveToDraw(false);
+        setCardsNumberToDraw(0);
+        setNumberOfCardsPlayer1(-1);
+        setNumberOfCardsPlayer2(-1);
         toast.info("Card deck is shuffled!");
       })
       .catch((e) => {
@@ -164,6 +170,10 @@ const MainPage = () => {
     setCardsAreShuffled(false);
     setIsRefreshed(!isRefreshed);
     setGameIsEnded(false);
+    setHaveToDraw(false);
+    setCardsNumberToDraw(0);
+    setNumberOfCardsPlayer1(-1);
+    setNumberOfCardsPlayer2(-1);
     await extractPlayedCardData();
     getNumberOfCardsPlayer1();
     getNumberOfCardsPlayer2();
@@ -172,10 +182,14 @@ const MainPage = () => {
 
   const changeActivePlayer = async () => {
     await extractPlayedCardData();
+    await getNumberOfCardsPlayer1();
+    await getNumberOfCardsPlayer2();
+    checkDrawMultipleCards();
+    setNumberOfErrors(0);
+    checkIfGameIsEnded();
     const active = activePlayer;
     setActivePlayer(!activePlayer);
-    getNumberOfCardsPlayer1();
-    getNumberOfCardsPlayer2();
+
     if (!active === true) {
       toast.info("Is Player 1 turn");
     } else toast.info("Is Player 2 turn");
@@ -197,6 +211,26 @@ const MainPage = () => {
     });
   };
 
+  const checkDrawMultipleCards = () => {
+    const splittedPlayedCard = Array.from(playedCard);
+    const playedCardVal = splittedPlayedCard[0];
+    if (playedCardVal === "2") {
+      // setHaveToDraw(true);
+      // setCardsNumberToDraw(cardsNumberToDraw + 2);
+      console.log("checkedDrawMultiple cards", 2);
+    } else if (playedCardVal === "3") {
+      // setHaveToDraw(true);
+      // setCardsNumberToDraw(cardsNumberToDraw + 3);
+      console.log("checkedDrawMultiple cards", 3);
+    }
+  };
+
+  const handleMultipleCardDrawButton = (e) => {
+    e.preventDefault();
+  };
+
+  const checkHaveToWait = () => {};
+
   const handleCardClick = async (i, disabled) => {
     checkIfGameIsEnded();
     const splittedUsedCard = Array.from(i);
@@ -217,8 +251,6 @@ const MainPage = () => {
         playedCardSuit
       );
     }
-
-    // checkIfGameIsEnded();
   };
 
   const checkCardRules = async (
@@ -230,20 +262,28 @@ const MainPage = () => {
   ) => {
     if (usedCardValue === playedCardValue || usedCardSuit === playedCardSuit) {
       if (activePlayer === true) {
-        try {
-          await drawFromPlayer1Pile(usedCard).then(() =>
-            putCardIntoPlayedCardsPile(usedCard)
-          );
-          changeActivePlayer();
-        } catch (e) {
-          console.log("Error", e);
-          console.log(e.response.data);
+        if (usedCardValue === 2) {
+          console.log("Player1 card played is 2");
+        } else if (usedCardValue === 3) {
+          console.log("Player1 card played is 3");
+        } else {
+          try {
+            await drawFromPlayer1Pile(usedCard).then(() =>
+              putCardIntoPlayedCardsPile(usedCard)
+            );
+            checkDrawMultipleCards();
+            changeActivePlayer();
+          } catch (e) {
+            console.log("Error", e);
+            console.log(e.response.data);
+          }
         }
       } else if (activePlayer === false) {
         try {
           await drawFromPlayer2Pile(usedCard).then(() =>
             putCardIntoPlayedCardsPile(usedCard)
           );
+          checkDrawMultipleCards();
           changeActivePlayer();
         } catch (e) {
           console.log("Error", e);
@@ -295,9 +335,9 @@ const MainPage = () => {
       }
     }
   };
-  useEffect(() => {
-    if (newGame === true) checkIfGameIsEnded();
-  }, [isRefreshed, numberOfCardsPlayer1, numberOfCardsPlayer2]);
+  // useEffect(() => {
+  //   if (newGame === true) checkIfGameIsEnded();
+  // }, [isRefreshed, numberOfCardsPlayer1, numberOfCardsPlayer2]);
 
   useEffect(() => {
     const localStorageItem = localStorage.getItem("deckId");
@@ -354,6 +394,12 @@ const MainPage = () => {
             <button onClick={(e) => handlePickCardButton(e)}>
               Pick a card
             </button>
+          ) : (
+            ""
+          )}
+
+          {haveToDraw ? (
+            <button>{`Draw ${cardsNumberToDraw} cards`}</button>
           ) : (
             ""
           )}
