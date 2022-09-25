@@ -16,6 +16,8 @@ import {
   getLastCardFromPlayedCardsPileCall,
   getNumberOfCardsPlayer1Call,
   getNumberOfCardsPlayer2Call,
+  getPlayer1CardsValuesCall,
+  getPlayer2CardsValuesCall,
 } from "../../utils/api-calls.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -25,11 +27,15 @@ const MainPage = () => {
   const [activePlayer, setActivePlayer] = useState(null);
   const [numberOfCardsPlayer1, setNumberOfCardsPlayer1] = useState(-1);
   const [numberOfCardsPlayer2, setNumberOfCardsPlayer2] = useState(-1);
+  const [player1CardsValues, setPlayer1CardsValues] = useState([]);
+  const [player2CardsValues, setPlayer2CardsValues] = useState([]);
   const [playedCard, setPlayedCard] = useState("");
   const [numberOfErrors, setNumberOfErrors] = useState(0);
   const [showPickCardButton, setShowPickCardButton] = useState(false);
   const [haveToDraw, setHaveToDraw] = useState(false);
   const [cardsNumberToDraw, setCardsNumberToDraw] = useState(0);
+  const [haveToWait, setHaveToWait] = useState(false);
+  const [roundsToWait, setRoundsToWait] = useState(0);
   const [gameIsEnded, setGameIsEnded] = useState(false);
   const [cardsAreShuffled, setCardsAreShuffled] = useState(true);
   const [isRefreshed, setIsRefreshed] = useState(false);
@@ -49,7 +55,6 @@ const MainPage = () => {
       .then((res) => {
         return res;
       })
-
       .catch((e) => {
         toast.error("Error when adding cards to Player1 deck!");
         console.log(e.response);
@@ -121,6 +126,26 @@ const MainPage = () => {
     });
   };
 
+  const getPlayer1CardValues = async () => {
+    await getPlayer1CardsValuesCall()
+      .then((res) => {
+        setPlayer1CardsValues(res);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
+
+  const getPlayer2CardValues = async () => {
+    await getPlayer2CardsValuesCall()
+      .then((res) => {
+        setPlayer2CardsValues(res);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
+
   const handleShuffleClick = async (e) => {
     e.preventDefault();
     await shuffleCardDeckCall()
@@ -135,6 +160,10 @@ const MainPage = () => {
         setCardsNumberToDraw(0);
         setNumberOfCardsPlayer1(-1);
         setNumberOfCardsPlayer2(-1);
+        setPlayer1CardsValues([]);
+        setPlayer2CardsValues([]);
+        setHaveToWait(false);
+        setRoundsToWait(0);
         toast.info("Card deck is shuffled!");
       })
       .catch((e) => {
@@ -172,11 +201,15 @@ const MainPage = () => {
     setGameIsEnded(false);
     setHaveToDraw(false);
     setCardsNumberToDraw(0);
+    setHaveToWait(false);
+    setRoundsToWait(0);
     setNumberOfCardsPlayer1(-1);
     setNumberOfCardsPlayer2(-1);
     await extractPlayedCardData();
     getNumberOfCardsPlayer1();
     getNumberOfCardsPlayer2();
+    getPlayer1CardValues();
+    getPlayer2CardValues();
     changeActivePlayer();
   };
 
@@ -184,11 +217,15 @@ const MainPage = () => {
     await extractPlayedCardData();
     await getNumberOfCardsPlayer1();
     await getNumberOfCardsPlayer2();
-    checkDrawMultipleCards();
+    await getPlayer1CardValues();
+    await getPlayer2CardValues();
+
     setNumberOfErrors(0);
     checkIfGameIsEnded();
     const active = activePlayer;
     setActivePlayer(!activePlayer);
+
+    if (cardsNumberToDraw === 0) setHaveToDraw(false);
 
     if (!active === true) {
       toast.info("Is Player 1 turn");
@@ -211,26 +248,6 @@ const MainPage = () => {
     });
   };
 
-  const checkDrawMultipleCards = () => {
-    const splittedPlayedCard = Array.from(playedCard);
-    const playedCardVal = splittedPlayedCard[0];
-    if (playedCardVal === "2") {
-      // setHaveToDraw(true);
-      // setCardsNumberToDraw(cardsNumberToDraw + 2);
-      console.log("checkedDrawMultiple cards", 2);
-    } else if (playedCardVal === "3") {
-      // setHaveToDraw(true);
-      // setCardsNumberToDraw(cardsNumberToDraw + 3);
-      console.log("checkedDrawMultiple cards", 3);
-    }
-  };
-
-  const handleMultipleCardDrawButton = (e) => {
-    e.preventDefault();
-  };
-
-  const checkHaveToWait = () => {};
-
   const handleCardClick = async (i, disabled) => {
     checkIfGameIsEnded();
     const splittedUsedCard = Array.from(i);
@@ -243,13 +260,132 @@ const MainPage = () => {
     if (disabled === true || showPickCardButton === true) {
       console.log("Player is disabled");
     } else {
-      await checkCardRules(
-        i,
-        usedCardValue,
-        usedCardSuit,
-        playedCardValue,
-        playedCardSuit
-      );
+      if (haveToDraw === false && haveToWait === false) {
+        await checkCardRules(
+          i,
+          usedCardValue,
+          usedCardSuit,
+          playedCardValue,
+          playedCardSuit,
+          false
+        );
+      } else if (haveToDraw === true && haveToWait === false) {
+        if (activePlayer === true) {
+          if (playedCardValue === "2" && usedCardValue === "2") {
+            await checkCardRules(
+              i,
+              usedCardValue,
+              usedCardSuit,
+              playedCardValue,
+              playedCardSuit,
+              false
+            );
+          } else if (playedCardValue === "2" && usedCardValue !== "2") {
+            toast.error("You cannot play that card. You must play a 2");
+          }
+          if (playedCardValue === "3" && usedCardValue === "3") {
+            await checkCardRules(
+              i,
+              usedCardValue,
+              usedCardSuit,
+              playedCardValue,
+              playedCardSuit,
+              false
+            );
+          } else if (playedCardValue === "3" && usedCardValue !== "3") {
+            toast.error("You cannot play that card. You must play a 3");
+          }
+        } else if (activePlayer === false) {
+          if (playedCardValue === "2" && usedCardValue === "2") {
+            await checkCardRules(
+              i,
+              usedCardValue,
+              usedCardSuit,
+              playedCardValue,
+              playedCardSuit,
+              false
+            );
+          } else if (playedCardValue === "2" && usedCardValue !== "2") {
+            toast.error("You cannot play that card. You must play a 2");
+          }
+          if (playedCardValue === "3" && usedCardValue === "3") {
+            await checkCardRules(
+              i,
+              usedCardValue,
+              usedCardSuit,
+              playedCardValue,
+              playedCardSuit,
+              false
+            );
+          } else if (playedCardValue === "3" && usedCardValue !== "3") {
+            toast.error("You cannot play that card. You must play a 3");
+          }
+        }
+      } else if (haveToDraw === false && haveToWait === true) {
+        if (activePlayer === true) {
+          if (playedCardValue === "A" && usedCardValue === "A") {
+            for (let j = roundsToWait; j === 0; j--) {
+              await checkCardRules(
+                i,
+                usedCardValue,
+                usedCardSuit,
+                playedCardValue,
+                playedCardSuit,
+                true
+              );
+            }
+            changeActivePlayer();
+          } else if (playedCardValue === "A" && usedCardValue !== "A") {
+            toast.error("You cannot play that card. You must play an Ace");
+          }
+          if (playedCardValue === "4" && usedCardValue === "4") {
+            for (let j = roundsToWait; j === 0; j--) {
+              await checkCardRules(
+                i,
+                usedCardValue,
+                usedCardSuit,
+                playedCardValue,
+                playedCardSuit,
+                true
+              );
+            }
+            changeActivePlayer();
+          } else if (playedCardValue === "3" && usedCardValue !== "4") {
+            toast.error("You cannot play that card. You must play a 4");
+          }
+        } else if (activePlayer === false) {
+          if (playedCardValue === "A" && usedCardValue === "A") {
+            for (let j = roundsToWait; j === 0; j--) {
+              await checkCardRules(
+                i,
+                usedCardValue,
+                usedCardSuit,
+                playedCardValue,
+                playedCardSuit,
+                true
+              );
+            }
+            changeActivePlayer();
+          } else if (playedCardValue === "A" && usedCardValue !== "A") {
+            toast.error("You cannot play that card. You must play an Ace");
+          }
+          if (playedCardValue === "4" && usedCardValue === "4") {
+            for (let j = roundsToWait; j === 0; j--) {
+              await checkCardRules(
+                i,
+                usedCardValue,
+                usedCardSuit,
+                playedCardValue,
+                playedCardSuit,
+                true
+              );
+            }
+            changeActivePlayer();
+          } else if (playedCardValue === "4" && usedCardValue !== "4") {
+            toast.error("You cannot play that card. You must play a 4");
+          }
+        }
+      }
     }
   };
 
@@ -258,47 +394,272 @@ const MainPage = () => {
     usedCardValue,
     usedCardSuit,
     playedCardValue,
-    playedCardSuit
+    playedCardSuit,
+    wait
   ) => {
     if (usedCardValue === playedCardValue || usedCardSuit === playedCardSuit) {
-      if (activePlayer === true) {
-        if (usedCardValue === 2) {
-          console.log("Player1 card played is 2");
-        } else if (usedCardValue === 3) {
-          console.log("Player1 card played is 3");
-        } else {
-          try {
-            await drawFromPlayer1Pile(usedCard).then(() =>
-              putCardIntoPlayedCardsPile(usedCard)
+      switch (usedCardValue) {
+        case "2":
+          if (activePlayer === true) {
+            const filteredPlayer2Cards = player2CardsValues.filter(
+              (element) => element === "2"
             );
-            checkDrawMultipleCards();
-            changeActivePlayer();
-          } catch (e) {
-            console.log("Error", e);
-            console.log(e.response.data);
+            if (filteredPlayer2Cards.length === 0) {
+              console.log("Switch turn and pick 2 cards");
+              try {
+                await getCardsFromDeckCall(2).then((cards) =>
+                  putCardsIntoPlayer2Pile(cards)
+                );
+                await drawFromPlayer1Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+                wait ? "" : changeActivePlayer();
+              } catch (e) {
+                console.log(e);
+              }
+            } else if (filteredPlayer2Cards.length !== 0) {
+              console.log("Switch turn and player1 must pick2 cards");
+              setCardsNumberToDraw(cardsNumberToDraw + 2);
+              setHaveToDraw(true);
+              try {
+                await drawFromPlayer1Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+              } catch (e) {
+                console.log(e);
+              }
+              wait ? "" : changeActivePlayer();
+            }
+          } else if (activePlayer === false) {
+            const filteredPlayer1Cards = player1CardsValues.filter(
+              (element) => element === "2"
+            );
+            if (filteredPlayer1Cards.length === 0) {
+              try {
+                await getCardsFromDeckCall(2).then((cards) =>
+                  putCardsIntoPlayer1Pile(cards)
+                );
+                await drawFromPlayer2Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+                wait ? "" : changeActivePlayer();
+              } catch (e) {
+                console.log(e);
+              }
+            } else if (filteredPlayer1Cards.length !== 0) {
+              console.log("Switch turn and player1 must pick2 cards");
+              setCardsNumberToDraw(cardsNumberToDraw + 2);
+              setHaveToDraw(true);
+              try {
+                await drawFromPlayer2Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+              } catch (e) {
+                console.log(e);
+              }
+              wait ? "" : changeActivePlayer();
+            }
           }
-        }
-      } else if (activePlayer === false) {
-        try {
-          await drawFromPlayer2Pile(usedCard).then(() =>
-            putCardIntoPlayedCardsPile(usedCard)
-          );
-          checkDrawMultipleCards();
-          changeActivePlayer();
-        } catch (e) {
-          console.log("Error", e);
-          console.log(e.response.data);
-        }
+          break;
+        case "3":
+          console.log("carte 3 selectata");
+          if (activePlayer === true) {
+            const filteredPlayer2Cards = player2CardsValues.filter(
+              (element) => element === "2"
+            );
+            if (filteredPlayer2Cards.length === 0) {
+              console.log("Switch turn and pick 3 cards");
+              try {
+                await getCardsFromDeckCall(3).then((cards) =>
+                  putCardsIntoPlayer2Pile(cards)
+                );
+                await drawFromPlayer1Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+                wait ? "" : changeActivePlayer();
+              } catch (e) {
+                console.log(e);
+              }
+            } else if (filteredPlayer2Cards.length !== 0) {
+              console.log("Switch turn and player1 must pick2 cards");
+              setCardsNumberToDraw(cardsNumberToDraw + 3);
+              setHaveToDraw(true);
+              try {
+                await drawFromPlayer1Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+              } catch (e) {
+                console.log(e);
+              }
+              wait ? "" : changeActivePlayer();
+            }
+          } else if (activePlayer === false) {
+            const filteredPlayer1Cards = player1CardsValues.filter(
+              (element) => element === "2"
+            );
+            if (filteredPlayer1Cards.length === 0) {
+              try {
+                await getCardsFromDeckCall(3).then((cards) =>
+                  putCardsIntoPlayer1Pile(cards)
+                );
+                await drawFromPlayer2Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+                wait ? "" : changeActivePlayer();
+              } catch (e) {
+                console.log(e);
+              }
+            } else if (filteredPlayer1Cards.length !== 0) {
+              setCardsNumberToDraw(cardsNumberToDraw + 2);
+              setHaveToDraw(true);
+              try {
+                await drawFromPlayer2Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+              } catch (e) {
+                console.log(e);
+              }
+              wait ? "" : changeActivePlayer();
+            }
+          }
+          break;
+        case "A":
+          if (activePlayer === true) {
+            const filteredPlayer2Cards = player2CardsValues.filter(
+              (element) => element === "A"
+            );
+            if (filteredPlayer2Cards.length === 0) {
+              try {
+                await drawFromPlayer1Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+                setIsRefreshed(!isRefreshed);
+              } catch (e) {
+                console.log(e);
+              }
+            } else if (filteredPlayer2Cards.length !== 0) {
+              setHaveToWait(true);
+              setRoundsToWait(roundsToWait + 1);
+              try {
+                await drawFromPlayer1Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+              } catch (e) {
+                console.log(e);
+              }
+              wwait ? "" : changeActivePlayer();
+            }
+          } else if (activePlayer === false) {
+            const filteredPlayer1Cards = player1CardsValues.filter(
+              (element) => element === "A"
+            );
+            if (filteredPlayer1Cards.length === 0) {
+              try {
+                await drawFromPlayer1Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+                setIsRefreshed(!isRefreshed);
+              } catch (e) {
+                console.log(e);
+              }
+            } else if (filteredPlayer1Cards.length !== 0) {
+              setHaveToWait(true);
+              setRoundsToWait(roundsToWait + 1);
+              try {
+                await drawFromPlayer2Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+              } catch (e) {
+                console.log(e);
+              }
+              wait ? "" : changeActivePlayer();
+            }
+          }
+          break;
+        case "4":
+          if (activePlayer === true) {
+            const filteredPlayer2Cards = player2CardsValues.filter(
+              (element) => element === "4"
+            );
+            if (filteredPlayer2Cards.length === 0) {
+              try {
+                await drawFromPlayer1Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+                setIsRefreshed(!isRefreshed);
+              } catch (e) {
+                console.log(e);
+              }
+            } else if (filteredPlayer2Cards.length !== 0) {
+              setHaveToWait(true);
+              setRoundsToWait(roundsToWait + 1);
+              try {
+                await drawFromPlayer1Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+              } catch (e) {
+                console.log(e);
+              }
+              wait ? "" : changeActivePlayer();
+            }
+          } else if (activePlayer === false) {
+            const filteredPlayer1Cards = player1CardsValues.filter(
+              (element) => element === "4"
+            );
+            if (filteredPlayer1Cards.length === 0) {
+              try {
+                await drawFromPlayer1Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+                setIsRefreshed(!isRefreshed);
+              } catch (e) {
+                console.log(e);
+              }
+            } else if (filteredPlayer1Cards.length !== 0) {
+              setHaveToWait(true);
+              setRoundsToWait(roundsToWait + 1);
+              try {
+                await drawFromPlayer2Pile(usedCard).then(() =>
+                  putCardIntoPlayedCardsPile(usedCard)
+                );
+              } catch (e) {
+                console.log(e);
+              }
+              wait ? "" : changeActivePlayer();
+            }
+          }
+          break;
+        default:
+          if (activePlayer === true) {
+            try {
+              await drawFromPlayer1Pile(usedCard).then(() =>
+                putCardIntoPlayedCardsPile(usedCard)
+              );
+              wait ? "" : changeActivePlayer();
+            } catch (e) {
+              console.log("Error", e);
+              console.log(e.response.data);
+            }
+          } else if (activePlayer === false) {
+            try {
+              await drawFromPlayer2Pile(usedCard).then(() =>
+                putCardIntoPlayedCardsPile(usedCard)
+              );
+              wait ? "" : changeActivePlayer();
+            } catch (e) {
+              console.log("Error", e);
+              console.log(e.response.data);
+            }
+          }
+          break;
       }
       toast.success("Good move");
       setIsRefreshed(!isRefreshed);
     } else {
-      toast.error("You cannot do this");
+      toast.error("You cannot play this card");
       setNumberOfErrors(numberOfErrors + 1);
     }
-
     if (numberOfErrors === 1) {
-      toast.info("You must now pick a card");
       setShowPickCardButton(true);
     }
   };
@@ -398,11 +759,11 @@ const MainPage = () => {
             ""
           )}
 
-          {haveToDraw ? (
-            <button>{`Draw ${cardsNumberToDraw} cards`}</button>
-          ) : (
-            ""
-          )}
+          {/*{haveToDraw ? (*/}
+          {/*  <button>{`Draw ${cardsNumberToDraw} cards`}</button>*/}
+          {/*) : (*/}
+          {/*  ""*/}
+          {/*)}*/}
         </div>
         <div className="content-right-side">
           <Player

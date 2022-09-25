@@ -134,3 +134,29 @@ export const getNumberOfCardsPlayer2Call = async () => {
   );
   return res.data.piles.player2.cards.length;
 };
+
+export const getPlayer1CardsValuesCall = async () => {
+  const res = await axios.get(
+    `https://www.deckofcardsapi.com/api/deck/${deck_id}/pile/${player1Pile}/list/`
+  );
+  const player1CardsValues = [];
+  for (let i = 0; i < res.data.piles.player1.cards.length; i++) {
+    const splittedPlayer1Card = res.data.piles.player1.cards[i].code;
+    player1CardsValues.push(splittedPlayer1Card[0]);
+  }
+
+  return player1CardsValues;
+};
+
+export const getPlayer2CardsValuesCall = async () => {
+  const res = await axios.get(
+    `https://www.deckofcardsapi.com/api/deck/${deck_id}/pile/${player2Pile}/list/`
+  );
+  const player2CardsValues = [];
+  for (let i = 0; i < res.data.piles.player2.cards.length; i++) {
+    const splittedPlayer2Card = res.data.piles.player2.cards[i].code;
+    player2CardsValues.push(splittedPlayer2Card[0]);
+  }
+
+  return player2CardsValues;
+};
