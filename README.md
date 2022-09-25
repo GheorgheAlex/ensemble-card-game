@@ -1,6 +1,6 @@
 ﻿# Welcome to Macao Card Game app! <!-- omit in toc -->
 
-Welcome to Macao Card Game app. This app emulates a card game similar to Uno that is played in Romania at parties, game night's etc.  This game is played by both players in the same window, oponent cards being not visibile to the player. 
+Welcome to Macao Card Game app. This app emulates a card game similar to Uno that is played in Romania at parties, game nights etc.  This game is played by both players in the same window, oponent cards being not visibile to the player. 
 
 The front end of the app is made using React.js and it was created with Vite.js for a speedy development experience. The API used for deck functionality is DeckofCardsAPI (https://deckofcardsapi.com/). The other dependencies are:
  - React-Toastify v9.0.8 (https://www.npmjs.com/package/react-toastify)
