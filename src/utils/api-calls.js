@@ -1,6 +1,4 @@
 import axios from "axios";
-import card from "../components/CardComponent/Card.jsx";
-import player from "../components/PlayerComponent/Player.jsx";
 
 const deck_id = localStorage.getItem("deckId");
 const player1Pile = "player1";
@@ -54,7 +52,7 @@ export const putCardsIntoPlayer2PileCall = async (arrayOfCards) => {
   return res;
 };
 
-export const putCardsIntoPlayedCardsPileCall = async (arrayOfCards) => {
+export const putCardsIntoPlayedCardsPileArrayCall = async (arrayOfCards) => {
   const drawedCardsArray = [];
   for (let i = 0; i < arrayOfCards.length; i++) {
     drawedCardsArray.push(arrayOfCards[i].code);
@@ -94,5 +92,69 @@ export const getCardsFromPileCall = async (pileName) => {
       return res.data.piles.playedCards.cards;
     }
   }
-  return [];
+};
+
+export const getLastCardFromPlayedCardsPileCall = async () => {
+  const res = await axios.get(
+    `https://deckofcardsapi.com/api/deck/${deck_id}/pile/${playedCardsPile}/list/`
+  );
+  return res.data.piles.playedCards.cards.at(-1);
+};
+
+export const drawFromPlayer1PileCall = async (card) => {
+  return axios.get(
+    `https://www.deckofcardsapi.com/api/deck/${deck_id}/pile/${player1Pile}/draw/?cards=${card}`
+  );
+};
+
+export const drawFromPlayer2PileCall = async (card) => {
+  return axios.get(
+    `https://www.deckofcardsapi.com/api/deck/${deck_id}/pile/${player2Pile}/draw/?cards=${card}`
+  );
+};
+
+export const putCardIntoPlayedCardsPileCall = async (card) => {
+  return axios.get(
+    `https://www.deckofcardsapi.com/api/deck/${deck_id}/pile/${playedCardsPile}/add/?cards=${card}`
+  );
+};
+
+export const getNumberOfCardsPlayer1Call = async () => {
+  const res = await axios.get(
+    `https://deckofcardsapi.com/api/deck/${deck_id}/pile/${player1Pile}/list/`
+  );
+  return res.data.piles.player1.cards.length;
+};
+
+export const getNumberOfCardsPlayer2Call = async () => {
+  const res = await axios.get(
+    `https://deckofcardsapi.com/api/deck/${deck_id}/pile/${player2Pile}/list/`
+  );
+  return res.data.piles.player2.cards.length;
+};
+
+export const getPlayer1CardsValuesCall = async () => {
+  const res = await axios.get(
+    `https://www.deckofcardsapi.com/api/deck/${deck_id}/pile/${player1Pile}/list/`
+  );
+  const player1CardsValues = [];
+  for (let i = 0; i < res.data.piles.player1.cards.length; i++) {
+    const splittedPlayer1Card = res.data.piles.player1.cards[i].code;
+    player1CardsValues.push(splittedPlayer1Card[0]);
+  }
+
+  return player1CardsValues;
+};
+
+export const getPlayer2CardsValuesCall = async () => {
+  const res = await axios.get(
+    `https://www.deckofcardsapi.com/api/deck/${deck_id}/pile/${player2Pile}/list/`
+  );
+  const player2CardsValues = [];
+  for (let i = 0; i < res.data.piles.player2.cards.length; i++) {
+    const splittedPlayer2Card = res.data.piles.player2.cards[i].code;
+    player2CardsValues.push(splittedPlayer2Card[0]);
+  }
+
+  return player2CardsValues;
 };

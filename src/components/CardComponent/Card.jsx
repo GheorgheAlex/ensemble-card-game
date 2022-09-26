@@ -1,16 +1,19 @@
 import React from "react";
 import "./Card.css";
 import defCard from "../../assets/default-card.png";
-import Player from "../PlayerComponent/Player.jsx";
+import cardBack from "../../assets/card-back.png";
 
-const Card = ({ cardImage, cardWidth }) => {
+const Card = ({ cardImage, cardWidth, onClick, disabled, alwaysVisible }) => {
   return (
     <div className="card-container">
       <img
         className="card-game-image"
         style={{ width: `${cardWidth}px` }}
-        src={cardImage}
+        src={
+          disabled === false || alwaysVisible === true ? cardImage : cardBack
+        }
         alt="default-card"
+        onClick={onClick}
       />
     </div>
   );
@@ -19,6 +22,7 @@ const Card = ({ cardImage, cardWidth }) => {
 Card.defaultProps = {
   cardImage: defCard,
   cardWidth: 100,
+  alwaysVisible: false,
 };
 
 export default Card;

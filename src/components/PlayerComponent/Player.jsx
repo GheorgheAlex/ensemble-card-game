@@ -3,7 +3,14 @@ import "./Player.css";
 import Card from "../CardComponent/Card.jsx";
 import { getCardsFromPileCall } from "../../utils/api-calls.js";
 
-const Player = ({ playerId, playerName, shuffled, refreshGame }) => {
+const Player = ({
+  playerId,
+  playerName,
+  shuffled,
+  refreshGame,
+  onClick,
+  isDisabled,
+}) => {
   const [playerCards, setPlayerCards] = useState([]);
 
   const getCardsFromPile = async (pileName) => {
@@ -12,12 +19,11 @@ const Player = ({ playerId, playerName, shuffled, refreshGame }) => {
         setPlayerCards(res);
       })
       .catch((e) => {
-        console.log(`${playerName} does not have any cards`);
         console.log(e.response.data);
       });
   };
+
   useEffect(() => {
-    setPlayerCards([]);
     getCardsFromPile(playerName);
   }, [shuffled, refreshGame]);
 
@@ -29,7 +35,12 @@ const Player = ({ playerId, playerName, shuffled, refreshGame }) => {
       <div className="right-side">
         {playerCards.length !== 0 ? (
           playerCards.map((card, i) => (
-            <Card key={i} cardImage={playerCards[i].image} />
+            <Card
+              key={i}
+              cardImage={playerCards[i].image}
+              onClick={() => onClick(playerCards[i].code, isDisabled)}
+              disabled={isDisabled}
+            />
           ))
         ) : (
           <h3>You don't have any cards.</h3>
