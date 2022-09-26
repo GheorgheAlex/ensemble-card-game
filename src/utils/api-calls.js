@@ -1,6 +1,4 @@
 import axios from "axios";
-import card from "../components/CardComponent/Card.jsx";
-import player from "../components/PlayerComponent/Player.jsx";
 
 const deck_id = localStorage.getItem("deckId");
 const player1Pile = "player1";

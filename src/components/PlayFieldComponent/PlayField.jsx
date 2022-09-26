@@ -3,10 +3,9 @@ import "./PlayField.css";
 import cardBack from "../../assets/card-back.png";
 import loading from "../../assets/loading.gif";
 import { getCardsFromPileCall } from "../../utils/api-calls.js";
-import Player from "../PlayerComponent/Player.jsx";
 import Card from "../CardComponent/Card.jsx";
 
-const PlayField = ({ name, shuffled, refreshGame, newGame }) => {
+const PlayField = ({ name, refreshGame, newGame }) => {
   const [discardedCards, setDiscardedCards] = useState([]);
   const cards = [];
 
@@ -17,7 +16,6 @@ const PlayField = ({ name, shuffled, refreshGame, newGame }) => {
         cards.push(res[res.length - 1]);
       })
       .catch((e) => {
-        console.log("Played cards pile does not have any cards");
         console.log(e.response.data);
       });
   };

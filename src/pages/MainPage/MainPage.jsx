@@ -78,7 +78,7 @@ const MainPage = () => {
         return res;
       })
       .catch((e) => {
-        toast.error("Failed adding card to played cards!");
+        toast.error("Failed adding card to played cards pile!");
         console.log(e.response.data);
       });
   };
@@ -188,13 +188,12 @@ const MainPage = () => {
       await getCardsFromDeckCall(1).then((cards) =>
         putCardsIntoPlayedCardsArrayPile(cards)
       );
+      toast.success("Cards are distributed. Have fun!");
     } catch (e) {
-      console.log("Error", e);
       console.log(e.response.data);
       toast.error("Cannot draw from deck!");
     }
 
-    toast.success("Cards are distributed. Have fun!");
     setNewGame(true);
     setCardsAreShuffled(false);
     setIsRefreshed(!isRefreshed);
@@ -719,7 +718,6 @@ const MainPage = () => {
               );
               if (!wait) await changeActivePlayer();
             } catch (e) {
-              console.log("Error", e);
               console.log(e.response.data);
             }
           } else if (activePlayer === false) {
@@ -729,7 +727,6 @@ const MainPage = () => {
               );
               if (!wait) await changeActivePlayer();
             } catch (e) {
-              console.log("Error", e);
               console.log(e.response.data);
             }
           }
@@ -759,7 +756,6 @@ const MainPage = () => {
         setNumberOfErrors(0);
         setIsRefreshed(!isRefreshed);
       } catch (e) {
-        console.log("Error", e);
         console.log(e.response.data);
       }
     } else if (activePlayer === false) {
@@ -773,14 +769,10 @@ const MainPage = () => {
         setNumberOfErrors(0);
         setIsRefreshed(!isRefreshed);
       } catch (e) {
-        console.log("Error", e);
         console.log(e.response.data);
       }
     }
   };
-  // useEffect(() => {
-  //   if (newGame === true) checkIfGameIsEnded();
-  // }, [isRefreshed, numberOfCardsPlayer1, numberOfCardsPlayer2]);
 
   useEffect(() => {
     const localStorageItem = localStorage.getItem("deckId");
@@ -816,7 +808,7 @@ const MainPage = () => {
         ) : gameIsEnded && numberOfCardsPlayer2 === 0 ? (
           <h1>Player2 WIN!</h1>
         ) : (
-          <h1>Card game</h1>
+          <h1>Macao card game</h1>
         )}
       </div>
       <div className="content">
@@ -864,7 +856,6 @@ const MainPage = () => {
           />
           <PlayField
             name="playedCards"
-            shuffled={cardsAreShuffled}
             refreshGame={isRefreshed}
             newGame={newGame}
           />
@@ -880,8 +871,7 @@ const MainPage = () => {
       </div>
       <div className="footer">
         <h3>
-          Made by Alex Gheorghe as a coding challenge for Ensemble Software. All
-          rights not reserved :P.
+          Made by Alex Gheorghe as a coding challenge for Ensemble Software.
         </h3>
       </div>
     </div>

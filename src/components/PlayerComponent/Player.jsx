@@ -19,7 +19,6 @@ const Player = ({
         setPlayerCards(res);
       })
       .catch((e) => {
-        console.log(`${playerName} does not have any cards`);
         console.log(e.response.data);
       });
   };
