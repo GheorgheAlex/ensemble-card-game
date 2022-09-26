@@ -2,7 +2,7 @@
 
 Welcome to Macao Card Game app. This app emulates a card game similar to Uno that is played in Romania at parties, game nights etc. This game is played by both players in the same window, oponent cards being not visibile to the player. 
 
-The front end of the app is made using React.js and it was created with Vite.js for a speedy development experience. The API used for deck functionality is DeckofCardsAPI (https://deckofcardsapi.com/). The other dependencies are:
+The front end of the app is made using React.js and it was created with Vite.js for a speedy development experience. The API used for deck functionality is [DeckofCardsAPI](https://deckofcardsapi.com/). The other dependencies are:
  - [React-Toastify v9.0.8](https://www.npmjs.com/package/react-toastify)
  - [Axios v0.27.2](https://axios-http.com/docs/intro)
 
@@ -38,7 +38,7 @@ After you press **NewGame** button, 5 cards will be distributed for every player
 The card that the player can put down can have the same value and different suit or can have any value but the same suit. If a 7 of spades was on the top of the discard pile, the player can play a 9 of spades or a 7 of clubs.
 ![Playing the game](images/playing-the-game.png)
 
-If you don't have a card to respect the rule mentioned above you can try clicking any card available in your hand. You will receive a notification error. After 2 notifications, a **"Pick a card" button** will appear on the left-side of the screen. Clicking it will add a card in your pile and end your turn.
+If you don't have a card to respect the rule mentioned above you can try clicking any card available in your hand. You will receive a notification error. After 2 notifications, a **"Pick a card"** button will appear on the left-side of the screen. Clicking it will add a card in your pile and end your turn.
 ![Picking a new card](images/picking-new-card.png)
 
 If a 2 is played, the next player in the sequence must pick up 2 cards unless they have a 2, in which case they will add this to the original 2 and the next player in the sequence must pick up 4 cards and so on. If a 3 is played, the next player in the sequence must pick up 3 cards unless they have a 3, in which case they will add this to the original 3 and the next player in sequence must pick up 6 cards and so on.
@@ -53,4 +53,4 @@ When one of the players will finish the cards in hand a notification will appear
 - Drag and drop interface for moving player cards into played cards pile.
 - More efficient API calls to improve app performance.
 - An implementation of global states with Redux may improve the app performance by reducing some of the state updates and allows better refactoring.
-- When a user has no playable cards, instead of showing the "Pick a card" button after 2 wrong cards picked, automatically show the **"Pick a card" button** at the beggining of the turn.
+- When a user has no playable cards, instead of showing the **"Pick a card"** button after 2 wrong cards picked, automatically show the **"Pick a card"** button at the beggining of the turn.
