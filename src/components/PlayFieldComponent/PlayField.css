@@ -23,6 +23,14 @@
     color: #D0D0D0;
 }
 
+.play-field-container .play-field-deck img{
+    width: 140px;
+    height: 220px;
+    border-radius: 10px;
+    box-shadow: 12px 5px 10px #242424;
+ }
+
+
 .play-field-container .play-field-pile {
     width: 200px;
     height: 240px;
