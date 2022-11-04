@@ -778,6 +778,7 @@ const MainPage = () => {
     const localStorageItem = localStorage.getItem("deckId");
     if (!localStorageItem) {
       getNewDeck();
+      shuffleCardDeckCall();
       toast.success(
         "You have a new deck to play! You just need to shuffle it and start a game!"
       );
